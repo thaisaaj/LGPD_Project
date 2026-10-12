@@ -8,7 +8,7 @@ ou está sendo **pedido em excesso** (princípio da necessidade, art. 6º, III),
 consentimento, cookies, segurança e direitos do titular, e apresenta o resultado em um dashboard com
 nota de 0 a 100, riscos e recomendações.
 
-> Projeto desenvolvido como Trabalho de Conclusão de Curso (TCC).
+> Projeto desenvolvido como Trabalho de Conclusão de Curso (TCC) da pós-graduação em Engenharia de Software da USP/Esalq.
 
 ![Visão geral do resultado](docs/img/02-visao-geral.png)
 
