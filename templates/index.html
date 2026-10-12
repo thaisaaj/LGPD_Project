@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LGPD Web Analyzer — Portal de Conformidade</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<div class="app">
+
+  <!-- ===================== MENU LATERAL ===================== -->
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6l7-3z"/><path d="M9 12l2 2 4-4"/>
+      </svg>
+      <div><b>LGPD Analyzer</b><small>Portal de Conformidade</small></div>
+    </div>
+    <nav class="menu">
+      <span class="menu-titulo">Análises</span>
+      <a href="#busca" class="ativo" data-nav>
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>Nova análise</a>
+      <a href="#resultado" data-nav id="nav-resultado" class="desabilitado">
+        <svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resultado</a>
+      <a href="#historico-box" data-nav>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Histórico</a>
+      <span class="menu-titulo">Referência</span>
+      <a href="#metodologia" data-nav>
+        <svg viewBox="0 0 24 24"><path d="M4 5h11a3 3 0 013 3v12H7a3 3 0 01-3-3V5z"/><path d="M8 9h6M8 13h6"/></svg>Metodologia</a>
+    </nav>
+    <div class="sidebar-rodape">Lei nº 13.709/2018<br>Lei Geral de Proteção de Dados</div>
+  </aside>
+
+  <!-- ===================== ÁREA PRINCIPAL ===================== -->
+  <div class="principal">
+    <header class="barra-topo">
+      <div class="trilha">Painel <span>/</span> <b>Análise de conformidade</b></div>
+      <div class="status-ia {{ 'on' if ia_disponivel else 'off' }}">
+        <i></i> Agente de IA: {{ ia_provedor if ia_disponivel else 'inativo' }}
+      </div>
+    </header>
+
+    <main>
+      <div class="cab-pagina">
+        <h1>Análise de conformidade com a LGPD</h1>
+        <p>Avalie se os formulários de uma página web solicitam apenas os dados pessoais necessários
+           e se atendem aos requisitos de transparência, consentimento, cookies e segurança.</p>
+      </div>
+
+      <!-- Nova análise -->
+      <section class="painel" id="busca">
+        <div class="painel-cab"><h2>Nova análise</h2></div>
+        <form id="form-analise" class="painel-corpo">
+          <label class="rotulo" for="url">URL da página</label>
+          <div class="linha-busca">
+            <input id="url" type="text" placeholder="https://www.exemplo.com.br/cadastro" autocomplete="url" required>
+            <button type="submit" id="btn" class="btn-primario">Analisar página</button>
+          </div>
+          <div class="opcoes">
+            <div>
+              <label class="rotulo" for="finalidade">Finalidade do formulário</label>
+              <select id="finalidade">
+                <option value="">Detectar automaticamente</option>
+                {% for k, nome in finalidades %}<option value="{{ k }}">{{ nome }}</option>{% endfor %}
+              </select>
+            </div>
+            <label class="chk" title="{{ '' if ia_disponivel else 'Defina ANTHROPIC_API_KEY no arquivo .env para habilitar' }}">
+              <input id="usar-ia" type="checkbox" {{ 'checked' if ia_disponivel else 'disabled' }}>
+              Incluir parecer contextual do agente de IA{{ '' if ia_disponivel else ' (indisponível)' }}
+            </label>
+          </div>
+          <div class="exemplos">Páginas de demonstração:
+            <a href="#" data-exemplo="/exemplos/cadastro_excessivo.html">formulário não conforme</a>
+            <a href="#" data-exemplo="/exemplos/cadastro_adequado.html">formulário adequado</a>
+          </div>
+        </form>
+      </section>
+
+      <!-- Processando -->
+      <section class="painel" id="carregando" hidden>
+        <div class="painel-corpo processando">
+          <div class="spinner"></div>
+          <div>
+            <b>Processando análise…</b>
+            <ol class="etapas" id="etapas">
+              <li>Acessando a página com navegador automatizado</li>
+              <li>Extraindo campos, links, cookies e scripts</li>
+              <li>Executando o motor de regras LGPD</li>
+              <li>Consultando o agente de IA</li>
+              <li>Consolidando o relatório</li>
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="alerta-erro" id="erro" hidden></section>
+
+      <!-- Resultado (preenchido via JavaScript) -->
+      <section id="resultado" hidden></section>
+
+      <!-- Histórico -->
+      <section class="painel" id="historico-box">
+        <div class="painel-cab"><h2>Histórico de análises</h2></div>
+        <div class="painel-corpo sem-padding">
+          <div class="tabela-wrap">
+            <table class="tabela">
+              <thead><tr><th>Data</th><th>Página analisada</th><th class="dir">Nota</th><th>Classificação</th><th>Agente de IA</th></tr></thead>
+              <tbody id="historico"><tr><td colspan="5" class="vazio">Nenhuma análise realizada ainda.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- Metodologia -->
+      <section class="painel" id="metodologia">
+        <div class="painel-cab"><h2>Metodologia de avaliação</h2></div>
+        <div class="painel-corpo">
+          <div class="grade-motores">
+            <div class="motor">
+              <span class="motor-etiqueta">Motor de regras</span>
+              <b>Verificação objetiva</b>
+              <p>Executa regras determinísticas sobre os campos, textos, links, cookies e cabeçalhos coletados,
+                 cada uma vinculada a um artigo da LGPD, e calcula a nota de conformidade.</p>
+            </div>
+            <div class="motor">
+              <span class="motor-etiqueta">Agente de IA — {{ ia_provedor if ia_disponivel else 'não configurado' }}</span>
+              <b>Interpretação inteligente</b>
+              <p>Analisa os textos e as evidências, considera o contexto, identifica possíveis lacunas de transparência,
+                 explica os achados e sugere melhorias.</p>
+            </div>
+          </div>
+          <p class="texto">A nota de 0 a 100 é calculada exclusivamente pelo motor de regras, de forma determinística.
+            Cada regra resulta em <b>atende</b> (1,0), <b>parcial</b> (0,5) ou <b>não atende</b> (0,0); regras não aplicáveis
+            são desconsideradas. A nota de cada categoria é a média ponderada de suas regras e a nota final é a média
+            ponderada das categorias abaixo. O agente de IA complementa a análise com um parecer contextual.</p>
+          <div class="grade-metodo">
+            {% for k, c in categorias.items() %}
+            <div class="metodo-item"><span class="peso">{{ c.peso }}%</span><b>{{ c.nome }}</b><small>{{ c.base }}</small></div>
+            {% endfor %}
+          </div>
+          <p class="texto nota-rodape">Faixas: ≥ 80 adequado · 50 a 79 adequação parcial · abaixo de 50 baixa adequação.
+            Ferramenta de apoio técnico — o resultado não substitui avaliação jurídica.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

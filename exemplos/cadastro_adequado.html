@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Cadastro - Loja Exemplo (página de teste conforme)</title>
+<style>
+  body{font-family:Arial,sans-serif;max-width:640px;margin:30px auto;color:#222}
+  label{display:block;margin-top:10px} input{width:100%;padding:6px}
+  label.check{display:flex;gap:8px;align-items:flex-start} label.check input{width:auto}
+  .info{background:#eef5ff;padding:10px;border-radius:6px;font-size:14px}
+  #cookie-consent{position:fixed;bottom:0;left:0;right:0;background:#f4f4f4;padding:14px;border-top:1px solid #ccc}
+</style>
+</head>
+<body>
+<h1>Criar conta</h1>
+<form id="cadastro" method="post" action="/obrigado">
+  <p class="info">Usamos seus dados apenas para criar e gerenciar sua conta. Seus dados são utilizados somente para
+    essa finalidade e não são compartilhados para publicidade. O telefone é opcional e serve apenas para avisos
+    sobre seus pedidos. Saiba mais na nossa <a href="/exemplos/politica.html">Política de Privacidade</a>.</p>
+  <label for="nome">Nome *</label><input id="nome" name="nome" autocomplete="name" required>
+  <label for="email">E-mail *</label><input id="email" name="email" type="email" autocomplete="email" required>
+  <label for="senha">Senha *</label><input id="senha" name="senha" type="password" autocomplete="new-password" required>
+  <label for="tel">Telefone (opcional)</label><input id="tel" name="telefone" type="tel" autocomplete="tel">
+  <label class="check"><input type="checkbox" name="termos" required> Li e concordo com os Termos de Uso e a Política de Privacidade.</label>
+  <label class="check"><input type="checkbox" name="marketing"> Quero receber novidades e ofertas por e-mail (opcional — você pode se descadastrar a qualquer momento).</label>
+  <p><small>Você precisa ter 18 anos ou mais para criar uma conta.</small></p>
+  <button type="submit">Criar conta</button>
+</form>
+
+<footer>
+  <p>Loja Exemplo Ltda. — CNPJ 12.345.678/0001-90 — Encarregado (DPO): Maria Souza — dpo@lojaexemplo.com.br</p>
+  <a href="/exemplos/politica.html">Política de Privacidade</a> · <a href="/exemplos/politica.html#cookies">Política de Cookies</a>
+</footer>
+
+<div id="cookie-consent">Este site utiliza apenas cookies essenciais. Cookies opcionais de medição só são ativados com sua autorização.
+  <button>Aceitar todos</button> <button>Rejeitar opcionais</button> <button>Configurar</button></div>
+</body>
+</html>
